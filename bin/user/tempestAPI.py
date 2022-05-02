@@ -1,11 +1,10 @@
-from turtle import clear
 import websocket
 import _thread
 import time
 import rel
 import json
 
-personal_token = 'eba0c0f1-39d7-4321-bc63-f1c348dbf757'
+personal_token = ''
 tempest_device_ID = '195926'
 tempest_station_ID = '72866'
 tempest_endpoint='wss://ws.weatherflow.com/swd/data'
@@ -58,7 +57,7 @@ def on_open(ws):
     print("Opened connection")
     ws.send(('{"type":"listen_start", "device_id":' + tempest_device_ID + ',' + ' "id":"corrOpenOb"}'))
     ws.send(('{"type":"listen_rapid_start", "device_id":' + tempest_device_ID + ',' + ' "id":"corrOpenWind"}'))
-    #ws.send(('{"type":"listen_start_events", "station_id":' + tempest_station_ID + ',' + ' "id":"corrOpenStation"}')) 
+    ws.send(('{"type":"listen_start_events", "station_id":' + tempest_station_ID + ',' + ' "id":"corrOpenStation"}')) 
 
 
 if __name__ == "__main__":
