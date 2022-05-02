@@ -1,0 +1,19 @@
+Priorities to work....
+
+1.  Get testing setup
+    a.  Utilize the local weewx installation for now and drop the driver in the correct directory.
+    b.  Setup a script to test it perhaps?
+2.  Start with pulling in driver config from the stanza.  Can I do that without having the driver set???
+    a.  Get the URI in there as a default value
+    b.  Get the station ID, device ID and API key in there.
+3.  Narrow the whole mess down to wind for now.  
+    a.  Implement the three required sub-classes.
+    b.  Make sure they run.
+    c.  Make sure loop packets are happening.
+4.  Once working get the packaging setup.
+5.  Setup a build/automate process so that maintenance/new versions etc... doesn't suck.
+
+Stretch Goals
+A.  Implement archive packets based on the summary data.
+B.  Pull in device/station ID via rest API call.
+C.  Can I get additional archive packets via the rest API call?  Hmmmmm.
