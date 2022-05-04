@@ -64,6 +64,7 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         #    print(json.dumps(msg))
         if loop_packet != {}:
             print(loop_packet)
+            yield loop_packet
 
     def on_error(self, ws, error):
         print(error)
