@@ -31,8 +31,8 @@ class tempestAPI(weewx.drivers.AbstractDevice):
 
     def __init__(self, **cfg_dict):
         self._personal_token = str(cfg_dict.get('personal_token'))
-        self._tempest_device_ID = str(cfg_dict.get('tempest_device_ID'))
-        self._tempest_station_ID = str(cfg_dict.get('tempest_station_ID'))
+        self._tempest_device_ID = str(cfg_dict.get('tempest_device_id'))
+        self._tempest_station_ID = str(cfg_dict.get('tempest_station_id'))
         self._tempest_websocket_endpoint = str(cfg_dict.get('weatherflow_websocket_URI'))
 
     def on_message(self, ws, message):
