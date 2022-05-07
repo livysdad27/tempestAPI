@@ -70,10 +70,10 @@ class tempestAPI(weewx.drivers.AbstractDevice):
             loop_packet['usUnits'] = weewx.METRIXWX
             loop_packet['windSpeed'] = mqtt_data[1]
             loop_packet['windDir'] = mqtt_data[2] 
-        #elif msg['type']=='ack':
-        #    print('ACK-> ' + msg['id'])
-        #else:
-        #    print(json.dumps(msg))
+        elif msg['type']=='ack':
+            print('ACK-> ' + msg['id'])
+        else:
+            print(json.dumps(msg))
         if loop_packet != {}:
             print(loop_packet)
             yield loop_packet
