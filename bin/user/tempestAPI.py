@@ -26,19 +26,31 @@ def loginf(msg):
 def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
 
-
 class tempestAPI(weewx.drivers.AbstractDevice):
-
     def __init__(self, **cfg_dict):
         self._personal_token = str(cfg_dict.get('personal_token'))
-        self._tempest_device_ID = str(cfg_dict.get('tempest_device_id'))
-        self._tempest_station_ID = str(cfg_dict.get('tempest_station_id'))
+        self._tempest_device_id = str(cfg_dict.get('tempest_device_id'))
+        self._tempest_station_id = str(cfg_dict.get('tempest_station_id'))
         self._tempest_websocket_endpoint = str(cfg_dict.get('weatherflow_websocket_URI'))
+        self._tempest_websocket_trace = cfg_dict.get('websocket_trace', True)
+        self._websocket_uri=self._tempest_websocket_endpoint + '?api_key=' + self._personal_token
+    
+    def websocket_server(self):
+        websocket.enableTrace(self._tempest_websocket_trace)
+        ws = websocket.WebSocketApp(self._websocket_uri,
+                                on_open=self.on_open,
+                                on_message=self.on_message,
+                                on_error=self.on_error,
+                                on_close=self.on_close)
+        ws.run_forever(dispatcher=rel)  # Set dispatcher to automatic reconnection
+        rel.signal(2, rel.abort)  # Keyboard Interrupt
+        rel.dispatch()
 
     def on_message(self, ws, message):
         loop_packet = {}
         mqtt_data = []
         msg = json.loads(message)
+        print("HIIIIIIIIIIII")
         if msg['type']=='obs_st':
             mqtt_data = msg['obs'][0]
             loop_packet['dateTime'] = mqtt_data[0]
@@ -73,22 +85,12 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         print('!!!! Connection Closed !!!!')
 
     def on_open(self, ws):
-        ws.send(('{"type":"listen_start", "device_id":' + self._tempest_device_ID + ',' + ' "id":"listen_start"}'))
-        ws.send(('{"type":"listen_rapid_start", "device_id":' + self._tempest_device_ID + ',' + ' "id":"rapid_wind"}'))
-        #ws.send(('{"type":"listen_start_events", "station_id":' + self._tempest_station_ID + ',' + ' "id":"listen_start_events"}')) 
+        ws.send(('{"type":"listen_start", "device_id":' + self._tempest_device_id + ',' + ' "id":"listen_start"}'))
+        ws.send(('{"type":"listen_rapid_start", "device_id":' + self._tempest_device_id + ',' + ' "id":"rapid_wind"}'))
+        #ws.send(('{"type":"listen_start_events", "station_id":' + self._tempest_station_id + ',' + ' "id":"listen_start_events"}')) 
 
     def hardware_name(self):
         return HARDWARE_NAME
     
     def genLoopPackets(self):
-        websocket_uri=self._tempest_websocket_endpoint + '?api_key=' + self._personal_token
-        websocket.enableTrace(True)
-        ws = websocket.WebSocketApp(websocket_uri,
-                                on_open=self.on_open,
-                                on_message=self.on_message,
-                                on_error=self.on_error,
-                                on_close=self.on_close)
-
-        ws.run_forever(dispatcher=rel)  # Set dispatcher to automatic reconnection
-        rel.signal(2, rel.abort)  # Keyboard Interrupt
-        rel.dispatch()
+        pass
