@@ -33,7 +33,7 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         self._personal_token = str(cfg_dict.get('personal_token'))
         self._tempest_device_id = str(cfg_dict.get('tempest_device_id'))
         self._tempest_station_id = str(cfg_dict.get('tempest_station_id'))
-        self._tempest_rest_endpoint = str(cfg_dict.get('weatherflow_rest_endpoint'))
+        self._tempest_rest_endpoint = str(cfg_dict.get('tempest_rest_endpoint'))
         self._rest_uri=self._tempest_rest_endpoint + self._tempest_device_id + '?api_key=' + self._personal_token
 
     def hardware_name(self):
@@ -46,9 +46,8 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         if resp.status_code == 200:
             loginf("Successfull connection to Tempest REST API Endpoint")
             mqtt_data = resp.json()['obs'][0]
-            loginf("Loading obs" + mqtt_data)
             loop_packet['dateTime'] = mqtt_data[0]
-            loop_packet['usUnits'] = weewx.METRIXWX
+            loop_packet['usUnits'] = weewx.METRICWX
             loop_packet['outTemp'] = mqtt_data[7]
             loop_packet['outHumidity'] = mqtt_data[8]
             loop_packet['pressure'] = mqtt_data[6]
@@ -58,6 +57,12 @@ class tempestAPI(weewx.drivers.AbstractDevice):
             loop_packet['UV'] = mqtt_data[10]
             loop_packet['lightening_distance'] = mqtt_data[14]
             loop_packet['lightening_strike_count'] = mqtt_data[15]
+            loginf("Generated a loop packet")
 
         if loop_packet != {}:
-            yield loop_packet
+            loginf("submitting loop packet")
+            try:
+                yield loop_packet
+                loginf('Successfully submitted loop packet FLAG')
+            except:
+                logerr('Could not submit loop packet')
