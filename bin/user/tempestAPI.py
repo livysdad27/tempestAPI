@@ -45,7 +45,7 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         resp = rq.get(self._rest_uri)
         if resp.status_code == 200:
             loginf("Successfull connection to Tempest REST API Endpoint")
-            mqtt_data = resp.json()['obs']
+            mqtt_data = resp.json()['obs'][0]
             loop_packet['dateTime'] = mqtt_data[0]
             loop_packet['usUnits'] = weewx.METRIXWX
             loop_packet['outTemp'] = mqtt_data[7]
@@ -59,5 +59,4 @@ class tempestAPI(weewx.drivers.AbstractDevice):
             loop_packet['lightening_strike_count'] = mqtt_data[15]
 
         if loop_packet != {}:
-            print(loop_packet)
             yield loop_packet
