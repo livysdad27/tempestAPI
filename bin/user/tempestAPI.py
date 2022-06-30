@@ -1,7 +1,6 @@
 import requests as rq
 import _thread
 import time
-import rel
 import json
 import weewx
 import getopt
