@@ -46,6 +46,7 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         if resp.status_code == 200:
             loginf("Successfull connection to Tempest REST API Endpoint")
             mqtt_data = resp.json()['obs'][0]
+            loginf("Loading obs" + mqtt_data)
             loop_packet['dateTime'] = mqtt_data[0]
             loop_packet['usUnits'] = weewx.METRIXWX
             loop_packet['outTemp'] = mqtt_data[7]
