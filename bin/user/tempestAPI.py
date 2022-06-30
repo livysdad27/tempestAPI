@@ -1,8 +1,12 @@
 import requests as rq
-import _thread
 import time
 import json
-import weewx
+import weewx.drivers
+import weewx.units
+import weewx.wxformulas
+import weedb
+import weeutil.weeutil
+import syslog
 import getopt
 
 DRIVER_VERSION = "0.7"
@@ -13,8 +17,7 @@ def loader(config_dict, engine):
     return tempestAPI(**config_dict[DRIVER_NAME])
 
 def logmsg(level, msg):
-    syslog.syslog(level, 'tempestAPI: %s: %s' %
-                  (threading.currentThread().getName(), msg))
+    syslog.syslog(level, 'tempestAPI: %s' % msg))
 
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
