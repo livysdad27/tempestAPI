@@ -1,4 +1,4 @@
-import websocket
+import requests as rq
 import _thread
 import time
 import rel
@@ -6,7 +6,7 @@ import json
 import weewx
 import getopt
 
-DRIVER_VERSION = "0.8"
+DRIVER_VERSION = "0.7"
 HARDWARE_NAME = "Weatherflow Tempest"
 DRIVER_NAME = "tempestAPI"
 
@@ -31,28 +31,19 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         self._personal_token = str(cfg_dict.get('personal_token'))
         self._tempest_device_id = str(cfg_dict.get('tempest_device_id'))
         self._tempest_station_id = str(cfg_dict.get('tempest_station_id'))
-        self._tempest_websocket_endpoint = str(cfg_dict.get('weatherflow_websocket_URI'))
-        self._tempest_websocket_trace = cfg_dict.get('websocket_trace', True)
-        self._websocket_uri=self._tempest_websocket_endpoint + '?api_key=' + self._personal_token
-    
-    def websocket_server(self):
-        websocket.enableTrace(self._tempest_websocket_trace)
-        ws = websocket.WebSocketApp(self._websocket_uri,
-                                on_open=self.on_open,
-                                on_message=self.on_message,
-                                on_error=self.on_error,
-                                on_close=self.on_close)
-        ws.run_forever(dispatcher=rel)  # Set dispatcher to automatic reconnection
-        rel.signal(2, rel.abort)  # Keyboard Interrupt
-        rel.dispatch()
+        self._tempest_rest_endpoint = str(cfg_dict.get('weatherflow_rest_endpoint'))
+        self._rest_uri=self._tempest_rest_endpoint + self._tempest_device_id + '?api_key=' + self._personal_token
 
-    def on_message(self, ws, message):
+    def hardware_name(self):
+        return HARDWARE_NAME
+
+    def genLoopPackets(self):
         loop_packet = {}
         mqtt_data = []
-        msg = json.loads(message)
-        print("HIIIIIIIIIIII")
-        if msg['type']=='obs_st':
-            mqtt_data = msg['obs'][0]
+        resp = rq.get(self._rest_uri)
+        if resp.status_code == 200:
+            loginf("Successfull connection to Tempest REST API Endpoint")
+            mqtt_data = resp.json()['obs']
             loop_packet['dateTime'] = mqtt_data[0]
             loop_packet['usUnits'] = weewx.METRIXWX
             loop_packet['outTemp'] = mqtt_data[7]
@@ -64,33 +55,7 @@ class tempestAPI(weewx.drivers.AbstractDevice):
             loop_packet['UV'] = mqtt_data[10]
             loop_packet['lightening_distance'] = mqtt_data[14]
             loop_packet['lightening_strike_count'] = mqtt_data[15]
-        elif msg['type']=='rapid_wind':
-            mqtt_data = msg['ob']
-            loop_packet['dateTime'] = mqtt_data[0]
-            loop_packet['usUnits'] = weewx.METRIXWX
-            loop_packet['windSpeed'] = mqtt_data[1]
-            loop_packet['windDir'] = mqtt_data[2] 
-        elif msg['type']=='ack':
-            print('ACK-> ' + msg['id'])
-        else:
-            print(json.dumps(msg))
+
         if loop_packet != {}:
             print(loop_packet)
             yield loop_packet
-
-    def on_error(self, ws, error):
-        print(error)
-
-    def on_close(self, ws, close_status_code, close_msg):
-        print('!!!! Connection Closed !!!!')
-
-    def on_open(self, ws):
-        ws.send(('{"type":"listen_start", "device_id":' + self._tempest_device_id + ',' + ' "id":"listen_start"}'))
-        ws.send(('{"type":"listen_rapid_start", "device_id":' + self._tempest_device_id + ',' + ' "id":"rapid_wind"}'))
-        #ws.send(('{"type":"listen_start_events", "station_id":' + self._tempest_station_id + ',' + ' "id":"listen_start_events"}')) 
-
-    def hardware_name(self):
-        return HARDWARE_NAME
-    
-    def genLoopPackets(self):
-        pass
