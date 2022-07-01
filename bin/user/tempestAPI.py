@@ -40,30 +40,33 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         return HARDWARE_NAME
 
     def genLoopPackets(self):
-        loop_packet = {}
-        mqtt_data = []
-        resp = rq.get(self._rest_uri)
-        if resp.status_code == 200:
-            loginf("Successfull connection to Tempest REST API Endpoint")
-            mqtt_data = resp.json()['obs'][0]
-            loop_packet['dateTime'] = mqtt_data[0]
-            loop_packet['usUnits'] = weewx.METRICWX
-            loop_packet['outTemp'] = mqtt_data[7]
-            loop_packet['outHumidity'] = mqtt_data[8]
-            loop_packet['pressure'] = mqtt_data[6]
-            loop_packet['supplyVoltage'] = mqtt_data[16]
-            loop_packet['radiation'] = mqtt_data[11]
-            loop_packet['rain'] = mqtt_data[19]
-            loop_packet['UV'] = mqtt_data[10]
-            loop_packet['lightening_distance'] = mqtt_data[14]
-            loop_packet['lightening_strike_count'] = mqtt_data[15]
-            loginf("Generated a loop packet")
-            time.sleep(5)
+        last_timestamp = 10
+        while True:
+            loop_packet = {}
+            mqtt_data = []
+            resp = rq.get(self._rest_uri)
+            if resp.status_code == 200:
+                loginf("Successfull connection to Tempest REST API Endpoint")
+                mqtt_data = resp.json()['obs'][0]
+                if last_timestamp != mqtt_data[0]:
+                    last_timestamp = mqtt_data[0]
+                    loop_packet['dateTime'] = mqtt_data[0]
+                    loop_packet['usUnits'] = weewx.METRICWX
+                    loop_packet['outTemp'] = mqtt_data[7]
+                    loop_packet['outHumidity'] = mqtt_data[8]
+                    loop_packet['pressure'] = mqtt_data[6]
+                    loop_packet['supplyVoltage'] = mqtt_data[16]
+                    loop_packet['radiation'] = mqtt_data[11]
+                    loop_packet['rain'] = mqtt_data[19]
+                    loop_packet['UV'] = mqtt_data[10]
+                    loop_packet['lightening_distance'] = mqtt_data[14]
+                    loop_packet['lightening_strike_count'] = mqtt_data[15]
+                    loginf("Generated a loop packet")
 
-        if loop_packet != {}:
-            loginf("submitting loop packet")
-            try:
-                yield loop_packet
-                loginf('Successfully submitted loop packet FLAG')
-            except:
-                logerr('Could not submit loop packet')
+            if loop_packet != {}:
+                loginf("submitting loop packet")
+                try:
+                    yield loop_packet
+                    loginf('Successfully submitted loop packet' + str)
+                except:
+                    logerr('Could not submit loop packet')
