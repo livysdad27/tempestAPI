@@ -47,7 +47,6 @@ class tempestAPI(weewx.drivers.AbstractDevice):
             resp = rq.get(self._rest_uri)
             time.sleep(5)
             if resp.status_code == 200:
-                loginf("Successfull connection to Tempest REST API Endpoint")
                 mqtt_data = resp.json()['obs'][0]
                 if last_timestamp != mqtt_data[0]:
                     last_timestamp = mqtt_data[0]
@@ -64,10 +63,12 @@ class tempestAPI(weewx.drivers.AbstractDevice):
                     loop_packet['lightening_strike_count'] = mqtt_data[15]
                     loginf("Generated a loop packet")
 
-            if loop_packet != {}:
-                loginf("submitting loop packet")
-                try:
-                    yield loop_packet
-                    loginf('Successfully submitted loop packet' + str)
-                except:
-                    logerr('Could not submit loop packet')
+                    if loop_packet != {}:
+                        loginf("submitting loop packet")
+                        try:
+                            yield loop_packet
+                        except:
+                            logerr('Could not submit loop packet' + str(loop_packet))
+            
+            else:
+                logerr("Attempt to connect to Tempest API at " + self._tempest_rest_endpoint + "failed with status " + resp.status_code)
