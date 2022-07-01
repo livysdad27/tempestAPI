@@ -91,8 +91,8 @@ class tempestAPI(weewx.drivers.AbstractDevice):
                     if loop_packet != {}:
                         try:
                             yield loop_packet
-                        except:
-                            logerr('Could not submit loop packet' + str(loop_packet))
+                        except BaseException as err:
+                            logerr('Could not submit loop packet' + err)
             
             else:
                 logerr("Attempt to connect to Tempest API at " + self._tempest_rest_endpoint + "failed with status " + resp.status_code)
