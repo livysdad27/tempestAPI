@@ -50,7 +50,7 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         self._tempest_device_id = str(cfg_dict.get('tempest_device_id'))
         self._tempest_station_id = str(cfg_dict.get('tempest_station_id'))
         self._tempest_rest_endpoint = str(cfg_dict.get('tempest_rest_endpoint'))
-        self._rest_sleep_interval = str(cfg_dict.get('rest_sleep_interval'))
+        self._rest_sleep_interval = int(cfg_dict.get('rest_sleep_interval'))
         self._rest_uri=self._tempest_rest_endpoint + self._tempest_device_id + '?api_key=' + self._personal_token
 
     def hardware_name(self):
