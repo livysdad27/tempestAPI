@@ -45,6 +45,7 @@ class tempestAPI(weewx.drivers.AbstractDevice):
             loop_packet = {}
             mqtt_data = []
             resp = rq.get(self._rest_uri)
+            time.sleep(5)
             if resp.status_code == 200:
                 loginf("Successfull connection to Tempest REST API Endpoint")
                 mqtt_data = resp.json()['obs'][0]
