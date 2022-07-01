@@ -50,6 +50,7 @@ class tempestAPI(weewx.drivers.AbstractDevice):
         self._tempest_device_id = str(cfg_dict.get('tempest_device_id'))
         self._tempest_station_id = str(cfg_dict.get('tempest_station_id'))
         self._tempest_rest_endpoint = str(cfg_dict.get('tempest_rest_endpoint'))
+        self._rest_sleep_interval = str(cfg_dict.get('rest_sleep_interval'))
         self._rest_uri=self._tempest_rest_endpoint + self._tempest_device_id + '?api_key=' + self._personal_token
 
     def hardware_name(self):
@@ -67,7 +68,7 @@ class tempestAPI(weewx.drivers.AbstractDevice):
             loop_packet = {}
             mqtt_data = []
             resp = rq.get(self._rest_uri)
-            time.sleep(5)
+            time.sleep(self._rest_sleep_interval)
             if resp.status_code == 200:
                 mqtt_data = resp.json()['obs'][0]
                 if last_timestamp != mqtt_data[0]:
