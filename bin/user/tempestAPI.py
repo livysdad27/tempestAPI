@@ -1,3 +1,16 @@
+# This is a weewx driver for the Tempest Weather System's REST API
+# It operates by calling the API once every five seconds or so
+# and looks to see (by testing the timestamp) if there's a new observation.
+# If it finds one it yields it as a loop packet.  
+#
+# I owe a lot of thanks to captiain-coredump as I studied his WeatherFlowUDP
+# driver quite a lot to get this sorted out.  In addition I run his driver on a 
+# rasp pi at home.
+#
+# The primary use case for this driver is to allow you to run a weewx server
+# in the cloud without having to rely on a local device/server to rsync files
+# to a web server. 
+
 import requests as rq
 import time
 import json
@@ -16,6 +29,7 @@ DRIVER_NAME = "tempestAPI"
 def loader(config_dict, engine):
     return tempestAPI(**config_dict[DRIVER_NAME])
 
+# These are some handy syslog functions. 
 def logmsg(level, msg):
     syslog.syslog(level, 'tempestAPI: %s' % msg)
 
@@ -28,6 +42,8 @@ def loginf(msg):
 def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
 
+# Inherit and initiate the class.  The station_id param isn't used currently but I left
+# it in just in case it's useful to pull that data also.
 class tempestAPI(weewx.drivers.AbstractDevice):
     def __init__(self, **cfg_dict):
         self._personal_token = str(cfg_dict.get('personal_token'))
@@ -39,7 +55,13 @@ class tempestAPI(weewx.drivers.AbstractDevice):
     def hardware_name(self):
         return HARDWARE_NAME
 
+    # This is where the loop packets are made via a call to the rest API endpoint
     def genLoopPackets(self):
+        loginf("Starting the main genLoopPackets run.")
+
+        # Set last_timestamp to something that we know will NOT match so that we 
+        # always grab the first packet.  After that we'll only grab a packet if 
+        # it's changed.
         last_timestamp = 10
         while True:
             loop_packet = {}
@@ -61,6 +83,9 @@ class tempestAPI(weewx.drivers.AbstractDevice):
                     loop_packet['UV'] = mqtt_data[10]
                     loop_packet['lightening_distance'] = mqtt_data[14]
                     loop_packet['lightening_strike_count'] = mqtt_data[15]
+                    loop_packet['windDir'] = mqtt_data[4]
+                    loop_packet['windGust'] = mqtt_data[3]
+                    loop_packet['windSpeed'] = mqtt_data[1]
 
                     if loop_packet != {}:
                         try:
