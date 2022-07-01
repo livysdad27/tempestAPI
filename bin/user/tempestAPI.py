@@ -71,6 +71,9 @@ class tempestAPI(weewx.drivers.AbstractDevice):
             time.sleep(self._rest_sleep_interval)
             if resp.status_code == 200:
                 mqtt_data = resp.json()['obs'][0]
+
+                # Detect if it's a new packet and if so build out the loop packet
+                # based on the mqtt_data
                 if last_timestamp != mqtt_data[0]:
                     last_timestamp = mqtt_data[0]
                     loop_packet['dateTime'] = mqtt_data[0]
@@ -88,11 +91,10 @@ class tempestAPI(weewx.drivers.AbstractDevice):
                     loop_packet['windGust'] = mqtt_data[3]
                     loop_packet['windSpeed'] = mqtt_data[1]
 
-                    if loop_packet != {}:
-                        try:
-                            yield loop_packet
-                        except BaseException as err:
-                            logerr('Could not submit loop packet' + err)
+                    try:
+                        yield loop_packet
+                    except BaseException as err:
+                        logerr('Could not submit loop packet' + err)
             
             else:
                 logerr("Attempt to connect to Tempest API at " + self._tempest_rest_endpoint + "failed with status " + resp.status_code)
