@@ -61,10 +61,8 @@ class tempestAPI(weewx.drivers.AbstractDevice):
                     loop_packet['UV'] = mqtt_data[10]
                     loop_packet['lightening_distance'] = mqtt_data[14]
                     loop_packet['lightening_strike_count'] = mqtt_data[15]
-                    loginf("Generated a loop packet")
 
                     if loop_packet != {}:
-                        loginf("submitting loop packet")
                         try:
                             yield loop_packet
                         except:
