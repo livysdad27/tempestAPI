@@ -17,7 +17,7 @@ def loader(config_dict, engine):
     return tempestAPI(**config_dict[DRIVER_NAME])
 
 def logmsg(level, msg):
-    syslog.syslog(level, 'tempestAPI: %s' % msg))
+    syslog.syslog(level, 'tempestAPI: %s' % msg)
 
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
