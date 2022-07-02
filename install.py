@@ -11,7 +11,7 @@ class tempestAPIInstaller(ExtensionInstaller):
             description='Weatherflow Tempest API installer',
             author="Billy Jackson",
             author_email="livysdad27@gmail.com",
-            files=[('bin/user', ['bin/user/tempestAPI.py'])]
+            files=[('bin/user', ['bin/user/tempestAPI.py'])],
             config={
                 'tempestAPI': {
                     'driver' : 'bin.user.tempestAPI',
