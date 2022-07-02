@@ -23,7 +23,7 @@ import syslog
 import getopt
 
 DRIVER_VERSION = "0.7"
-HARDWARE_NAME = "Weatherflow Tempest"
+HARDWARE_NAME = "Weatherflow Tempest REST"
 DRIVER_NAME = "tempestAPI"
 
 def loader(config_dict, engine):
