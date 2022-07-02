@@ -15,8 +15,8 @@ class tempestAPIInstaller(ExtensionInstaller):
             config={
                 'tempestAPI': {
                     'driver' : 'bin.user.tempestAPI',
-                    'personal_token': '"REPLACE WITH YOUR TOKEN FROM THE TEMPEST AUTHORIZATIONS PAGE"',
-                    'tempest_device_id': '"REPLACE WITH YOUR TEMPEST DEVICE ID"',
+                    'personal_token': 'your_api_token',
+                    'tempest_device_id': 'your_tempest_device_id',
                     'tempest_rest_endpoint': 'https://swd.weatherflow.com/swd/rest/observations/device/',                        
                     'rest_sleep_interval': '20'
                 },
